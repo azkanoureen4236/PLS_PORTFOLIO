@@ -2,9 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
 import { SignupDto } from 'src/auth/dto/signup.dto';
 import * as bcrypt from 'bcrypt';
-import { LoginDto } from 'src/auth/dto/login.dto';
-import { PrismaService } from 'prisma/prisma.service';
-import { Role } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UserService {
@@ -18,7 +16,7 @@ export class UserService {
           email: signupDto.email,
           password: hashedPassword,
           name: signupDto.name,
-          role: signupDto.role
+         
         },
       });
       if (!user) {
@@ -43,6 +41,19 @@ export class UserService {
       throw new HttpException('Failed to fetch user by email', 500);
     }
   }
+  async doesEmailExist(email:string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email },
+      });
+      if (user) {
+        return true
+      }
+      return false;
+    } catch (error) {
+      throw new HttpException('Failed to fetch user by emaiL', 500);
+    }
+  }
 
   async getUserById(userId: number): Promise<any> {
     try {
@@ -56,11 +67,12 @@ export class UserService {
 
   async updateUser(userDto: UserDto): Promise<any> {
     try {
+      const hashedPassword = await bcrypt.hash(userDto.password, 10);
       const user = await this.prisma.user.update({
         where: { email: userDto.email },
         data: {
           name: userDto.name,
-          password: userDto.password,
+          password: hashedPassword,
         },
       });
 
@@ -73,11 +85,6 @@ export class UserService {
       throw new HttpException('Failed to update user', 500);
     }
   }
-  async findUserByRole(role: Role) {
-  return this.prisma.user.findFirst({ where: { role } });
-}
   
+
 }
-
-
-

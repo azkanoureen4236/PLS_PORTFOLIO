@@ -1,52 +1,62 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { HttpException,InternalServerErrorException,} from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  HttpException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { SignupDto } from './dto/signup.dto';
-import { Role } from '@prisma/client';
 
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService,) {}
+  constructor(private readonly userService: UserService) {}
 
   async signup(signupDto: SignupDto): Promise<any> {
-  const {email,role} = signupDto;
+    const { email} = signupDto;
 
-  const existUser = await this.userService.findUserByEmail(email)
-  if (existUser){
-    throw new BadRequestException('email is already exist')
-
-  }
-  if (role === Role.ADMIN){
-    const existingAdmin = await this.userService.findUserByRole(Role.ADMIN) 
-
-    if (existingAdmin){
-      throw new HttpException('Admin already exist',200)
-    }
-   }
-   return this.userService.createUser(signupDto)
-  }
-  async login(user: any): Promise<any> {
+    const existUser = await this.userService.doesEmailExist(email);
+    if (existUser) {
+      throw new BadRequestException('Email is already in use');
     
+    }
+
+    const hashedPassword = await bcrypt.hash(signupDto.password, 10);
+    return this.userService.createUser({
+      ...signupDto,
+      password: hashedPassword,
+    });
+  }
+
+  async login(user: any): Promise<any> {
     try {
       const userdb = await this.userService.findUserByEmail(user.email);
-      if (!user) {
+      if (!userdb) {
         throw new HttpException('User not found', 404);
       }
-      if (user.password !== user.password) {
+
+      const isPasswordValid = await bcrypt.compare(
+        user.password,
+        userdb.password,
+      );
+      if (!isPasswordValid) {
         throw new HttpException('Invalid password', 401);
       }
+
       const payload = {
-        userId: user.id,
-        email: user.email,
-        password: user.password,
+        userId: userdb.id,
+        email: userdb.email,
+       
+      };
+
+      return {
+        message: 'Login successful',
+        user: payload,
       };
     } catch (error) {
       console.error('Login error:', error);
       throw new InternalServerErrorException(error.message || 'Login failed');
     }
   }
- 
-
 }
-
