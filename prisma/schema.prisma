@@ -40,5 +40,14 @@ enum Role {
   EMPLOYEE
   AUDIENCE
 }
+model Portfolio{
+  id          Int    @id @default(autoincrement())
+ c_name       String
+  images      String[]
+  description String
+  border      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 
 
