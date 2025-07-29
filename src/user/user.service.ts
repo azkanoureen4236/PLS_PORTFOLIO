@@ -33,9 +33,6 @@ export class UserService {
       const user = await this.prisma.user.findUnique({
         where: { email },
       });
-      if (!user) {
-        throw new HttpException('User not found', 404);
-      }
       return user;
     } catch (error) {
       throw new HttpException('Failed to fetch user by email', 500);
