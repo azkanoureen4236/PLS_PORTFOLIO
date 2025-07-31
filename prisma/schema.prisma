@@ -49,5 +49,11 @@ model Portfolio{
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+model company_profile{
+  id          Int    @id @default(autoincrement())
+  logo        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 
 

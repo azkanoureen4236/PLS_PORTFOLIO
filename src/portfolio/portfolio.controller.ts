@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { PortfolioService } from './portfolio.service';
 import { CreatePortfolioDto } from './dto/create-portfolio.dto';
-import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
 import { ApiBody, ApiOperation } from '@nestjs/swagger';
 
 @Controller('portfolio')
