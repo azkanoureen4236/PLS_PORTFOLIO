@@ -6,10 +6,18 @@ import { PrismaModule } from './prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { CompanyProfileModule } from './company_profile/company_profile.module';
+import { CloudinaryService } from './cloudinary/cloudinary.service';
+import { CompanyProfileController } from './company_profile/company_profile.controller';
 
 @Module({
-  imports: [AuthModule,PrismaModule, UserModule, BlogModule,JwtModule, PortfolioModule, CompanyProfileModule],
+  imports: [AuthModule,
+    PrismaModule,
+    UserModule,
+    BlogModule,
+    JwtModule,
+    PortfolioModule,
+    CompanyProfileModule,],
   controllers: [],
-  providers: [],
+  providers: [CloudinaryService],
 })
 export class AppModule {}

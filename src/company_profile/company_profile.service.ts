@@ -1,4 +1,4 @@
-import { HttpException, Injectable,Inject } from '@nestjs/common';
+import { HttpException, Injectable, Inject } from '@nestjs/common';
 import { CreateCompanyProfileDto } from './dto/create-company_profile.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -6,41 +6,44 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class CompanyProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createCompanyProfileDto:CreateCompanyProfileDto ) {
+  async create(url: string) {
     try {
-      return await this.prisma.company_profile.create({ data:createCompanyProfileDto });
+      return await this.prisma.company_profile.create({
+        data: {
+          logo: url,
+        },
+      });
     } catch (error) {
-      console.error('failed to create company_profile', error);
+      console.error('Failed to create company_profile', error);
       throw new HttpException('company_profile creation failed', 500);
     }
   }
   async getAll() {
-    try{
+    try {
       return await this.prisma.company_profile.findMany();
-     }
-     catch(error){
-      console.error('failed to fetch company_profile logo' , error)
-      throw new HttpException('logo was not found' , 500)
-     }  
+    } catch (error) {
+      console.error('failed to fetch company_profile logo', error);
+      throw new HttpException('logo was not found', 500);
+    }
   }
 
   async getById(id: number) {
-    try{
-      const profile = await this.prisma.company_profile.findUnique({where : {id}})
-    if (!profile){
-      throw new HttpException('logo not found', 404)
-    }
-    return profile;
-    }
-    catch(error){
-      console.error('logo was not fetch', 500)
-      throw new HttpException('logo not found' , 404)
-
+    try {
+      const profile = await this.prisma.company_profile.findUnique({
+        where: { id },
+      });
+      if (!profile) {
+        throw new HttpException('logo not found', 404);
+      }
+      return profile;
+    } catch (error) {
+      console.error('logo was not fetch', 500);
+      throw new HttpException('logo not found', 404);
     }
   }
 
-  async update(id: number, createCompanyProfileDto:CreateCompanyProfileDto) {
-     try {
+  async update(id: number, createCompanyProfileDto: CreateCompanyProfileDto) {
+    try {
       const profile = await this.prisma.company_profile.findUnique({
         where: { id },
       });
